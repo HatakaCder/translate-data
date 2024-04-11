@@ -87,7 +87,7 @@ def translate_data(df, name, type_trans, checkpoint=None):
                 df.at[idx, col_name]=translate_dict(df.at[idx, col_name], type_trans)
             else: continue
 
-        if idx+1 % checkpoint == 0:
+        if (idx+1) % checkpoint == 0:
             df.iloc[old_idx:idx] = save_file(df, name).iloc[old_idx:idx]
             old_idx = idx
 
