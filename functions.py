@@ -2,6 +2,7 @@ from deep_translator import GoogleTranslator
 from tqdm import tqdm
 import translators as ts
 import numpy as np
+import os
 
 drop_columns = ['answer',
  'ccid',
@@ -31,8 +32,11 @@ drop_columns = ['answer',
 drop_keys = ['resource_id', 'chapter']
 
 def save_file(df, name):
-    df.to_json(f'{name}_translated.json', orient='records', force_ascii=False)
+    if os.path.isdir('translated') is False:
+        os.mkdir('translated')
+    df.to_json(f'translated/{name}_translated.json', orient='records', force_ascii=False)
     return df
+
 def translate_text(text, type_trans):
     if text != None:
         if type_trans == 'deep_translator':
@@ -69,15 +73,20 @@ def translate_dict(dct, type_trans):
                 dct[item] = translate_text(dct[item], type_trans)
     return dct
 
-def translate_data(df, name, type_trans, checkpoint=None):
+def translate_data(df, name, type_trans, checkpoint=None, startpos=0):
+    if os.path.exists(f'{name}_translated.json'):
+        ans = input(f"Do you want to overwrite the exist file: {name}_translated.json? (Y/N)")
+        if ans.lower() != 'y': return df
+    
     if checkpoint is None: checkpoint = len(df)
-    old_idx = 0
+    old_idx = startpos
 
     col_df = np.setdiff1d(np.array(df.columns), drop_columns)
     col_types = df[col_df].apply(lambda col: type(col[0])).to_numpy()
     col_df_dict = dict(zip(col_df, [col_type.__name__ for col_type in col_types]))
-
-    for idx in tqdm (range (len(df)), desc="Translating..."):
+    
+    print("Start pos:", startpos)
+    for idx in tqdm (range (startpos, len(df)), desc="Translating..."):
         for col_name, col_type in col_df_dict.items():
             if col_type=='str':
                 df.at[idx, col_name]=translate_text(df.at[idx, col_name], type_trans)
@@ -87,7 +96,7 @@ def translate_data(df, name, type_trans, checkpoint=None):
                 df.at[idx, col_name]=translate_dict(df.at[idx, col_name], type_trans)
             else: continue
 
-        if (idx+1) % checkpoint == 0:
+        if (idx-startpos+1) % checkpoint == 0:
             df.iloc[old_idx:idx] = save_file(df, name).iloc[old_idx:idx]
             old_idx = idx
 
