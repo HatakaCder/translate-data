@@ -18,5 +18,8 @@ df = pd.read_json(f'{folder}{name}.json', lines=True)
 # startpos:
 # where to start translating
 
+# Nếu đang chạy mà lỗi bởi api và muốn chạy tiếp thì chỉnh tên file và thư mục theo file đã translated theo checkpoint và đặt startpos theo checkpoint đó
+# Ví dụ nếu file a lỗi ở 22 và checkpoint = 10 thì cần chỉnh tên file a_translated và folder = 'translated' và set startpos = 20
+
 # save_file:
-print(translate_data(df, name, type_trans='translator', checkpoint=100))
+print(translate_data(df, name, type_trans='translator', checkpoint=100, startpos=5))
