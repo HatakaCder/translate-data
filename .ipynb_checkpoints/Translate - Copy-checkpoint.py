@@ -1,5 +1,5 @@
 import pandas as pd
-from functions_temp import translate_data
+from functions import translate_data
 
 # replace example.json to your file for translating
 # replace the name of the folder where the file is stored in
@@ -21,7 +21,5 @@ df = pd.read_json(f'{folder}{name}.json', lines=True)
 # Nếu đang chạy mà lỗi bởi api và muốn chạy tiếp thì chỉnh tên file và thư mục theo file đã translated theo checkpoint và đặt startpos theo checkpoint đó
 # Ví dụ nếu file a lỗi ở 22 và checkpoint = 10 thì cần chỉnh tên file a_translated và folder = 'translated' và set startpos = 20
 
-# block = step
-
 # save_file:
-print(translate_data(df, name, type_trans='dt-microsoft', checkpoint=100, startpos=0, block=10))
+print(translate_data(df, name, type_trans='translator', checkpoint=100, startpos=5))
